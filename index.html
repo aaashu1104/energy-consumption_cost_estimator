@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Energy Consumption Cost Estimator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    button.delete-btn {
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    button.delete-btn:hover {
+      background-color: #b02a37;
+    }
+
+    #result {
+      padding: 15px;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      font-weight: bold;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      th {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        background: #fafafa;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border: none;
+        border-bottom: 1px solid #eee;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #666;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Monthly Energy Cost Calculator (in Rs.)</h2>
+
+    <label>Electricity Unit Rate (in Rs. per kWh): 
+      <input type="number" id="unitRate" value="8.00" step="0.01">
+    </label>
+
+    <table id="applianceTable">
+      <thead>
+        <tr>
+          <th>Appliance Name</th>
+          <th>Wattage (W)</th>
+          <th>Hours/Day</th>
+          <th>Days/Month</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr>
+          <td><input type="text" placeholder="e.g. Fan"></td>
+          <td><input type="number" value="75"></td>
+          <td><input type="number" value="8"></td>
+          <td><input type="number" value="30"></td>
+          <td><button class="delete-btn" onclick="removeRow(this)">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button class="button" onclick="addRow()">Add Appliance</button>
+    <button class="button" onclick="calculateCost()">Calculate Total Cost</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function addRow() {
+      const table = document.getElementById('tableBody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" placeholder="e.g. Appliance"></td>
+        <td><input type="number" value="100"></td>
+        <td><input type="number" value="1"></td>
+        <td><input type="number" value="30"></td>
+        <td><button class="delete-btn" onclick="removeRow(this)">Delete</button></td>
+      `;
+      table.appendChild(row);
+    }
+
+    function removeRow(button) {
+      const row = button.parentElement.parentElement;
+      row.remove();
+    }
+
+    function calculateCost() {
+      const unitRate = parseFloat(document.getElementById('unitRate').value);
+      let totalCost = 0;
+
+      const rows = document.querySelectorAll('#tableBody tr');
+      rows.forEach(row => {
+        const watt = parseFloat(row.cells[1].querySelector('input').value) || 0;
+        const hours = parseFloat(row.cells[2].querySelector('input').value) || 0;
+        const days = parseFloat(row.cells[3].querySelector('input').value) || 0;
+
+        const energyKWh = (watt * hours / 1000) * days;
+        totalCost += energyKWh * unitRate;
+      });
+
+      document.getElementById('result').innerText = 
+        `Estimated Monthly Energy Cost: in Rs. ${totalCost.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>
